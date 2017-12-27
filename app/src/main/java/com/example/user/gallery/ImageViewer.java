@@ -1,16 +1,14 @@
 package com.example.user.gallery;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
-import android.net.Uri;
 import android.os.Bundle;
-import android.widget.ImageView;
 import android.util.Log;
+import android.widget.ImageView;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,20 +16,15 @@ import java.io.IOException;
 import static android.content.ContentValues.TAG;
 
 public class ImageViewer extends Activity {
-
-    private Context mContext = null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.imageview);
-        mContext = this;
         Intent i = getIntent();
         String path = i.getExtras().getString("filename");
         Log.i("PATH", path);
         ImageView iv = findViewById(R.id.imageView);
 
-        //iv.setImageURI(Uri.parse(path));
         Bitmap b = LoadBitmap(path);
         iv.setImageBitmap(b);
     }
@@ -113,5 +106,11 @@ public class ImageViewer extends Activity {
             ex.printStackTrace();
             return null;
         }
+    }
+    public synchronized static Bitmap LoadThumbnail(String path, String origin_path)
+    {
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        int degree = GetExifOrientation(origin_path);
+        return GetRotatedBitmap(bitmap, degree);
     }
 }
