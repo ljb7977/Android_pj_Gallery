@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -30,7 +31,9 @@ public class ImageViewer extends Activity {
         Log.i("PATH", path);
         ImageView iv = findViewById(R.id.imageView);
 
-        iv.setImageURI(Uri.parse(path));
+        //iv.setImageURI(Uri.parse(path));
+        Bitmap b = LoadBitmap(path);
+        iv.setImageBitmap(b);
     }
 
     public synchronized static int GetExifOrientation(String path)
@@ -91,7 +94,24 @@ public class ImageViewer extends Activity {
                 Log.e(TAG, "file does not exist");
                 return null;
             }
-            int IMAGE_MAX_SIZE = GlobalConstants.getMaxImagePixelSize();
+            int IMAGE_MAX_SIZE = 2048;
+            BitmapFactory.Options bfo = new BitmapFactory.Options();
+            bfo.inJustDecodeBounds = true;
+
+            BitmapFactory.decodeFile(path, bfo);
+
+            if(bfo.outHeight * bfo.outWidth >= IMAGE_MAX_SIZE*IMAGE_MAX_SIZE){
+                bfo.inSampleSize = (int)Math.pow(2, (int)Math.round(Math.log(IMAGE_MAX_SIZE/
+                        (double)Math.max(bfo.outHeight, bfo.outWidth))/Math.log(0.5)));
+            }
+            bfo.inJustDecodeBounds = false;
+
+            final Bitmap bitmap = BitmapFactory.decodeFile(path, bfo);
+            int degree = GetExifOrientation(path);
+            return GetRotatedBitmap(bitmap, degree);
+        } catch (OutOfMemoryError ex){
+            ex.printStackTrace();
+            return null;
         }
     }
 }

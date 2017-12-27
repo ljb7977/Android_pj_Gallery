@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.graphics.Bitmap;
 
 import java.util.ArrayList;
 
@@ -44,7 +45,8 @@ public class ImageAdapter extends BaseAdapter {
         } else {
             imageView = (ImageView) convertView;
         }
-        imageView.setImageURI(Uri.parse(ImgList.get(position)));
+        Bitmap b = ImageViewer.LoadBitmap(ImgList.get(position));
+        imageView.setImageBitmap(b);
         return imageView;
     }
 }
